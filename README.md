@@ -4,7 +4,7 @@ AgriAdvnz is a modern web application designed to educate farmers and agricultur
 
 ---
 
-## 🚀 Features
+##  Features
 
 - **User Authentication**  
   - Secure **JWT-based login and registration**.  
@@ -26,7 +26,7 @@ AgriAdvnz is a modern web application designed to educate farmers and agricultur
 
 ---
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 - **Frontend:** EJS, HTML5, CSS3, Bootstrap 5, JavaScript  
 - **Backend:** Node.js, Express.js  
@@ -36,7 +36,7 @@ AgriAdvnz is a modern web application designed to educate farmers and agricultur
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 AgriAdvnz/
 │
