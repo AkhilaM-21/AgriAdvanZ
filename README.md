@@ -42,5 +42,5 @@ AgriAdvnz/
 │
 ├── public/ # Static files (CSS, JS, Images)
 ├── views/ # EJS templates
-├── server.js # Main server file
+├── server.js # Main server file     
 └── README.md # Project documentation
