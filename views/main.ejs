@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+ <style>
+    body {
+      min-height: 100vh;
+    }
+    .sidebar {
+  position: sticky;
+  top: 90px; 
+  height: calc(100vh - 90px);
+  background-color: lavender;
+  padding-top: 30px;
+  overflow-y: auto;
+}
+    .sidebar .nav-link {
+      color: purple;
+      padding: 10px 20px;
+      font-weight: 500;
+      display: block;
+    }
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link.active {
+      background-color:lavender;
+      border-left: 4px solid purple;
+    }
+    section {
+      scroll-margin-top: 70px;
+    }
+    .list-itm-container
+    {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .list-text
+    {
+      width: 70%;
+    }
+   .logo
+   {
+    width: 35%;
+   }
+  
+   
+  </style>
+</head>
+<body>
+ <div class="banner d-flex justify-content-evenly border border-bottom-2 mb-5">
+
+   <div class="logo" style="display: flex;align-items: center;">
+    <img src="/images/logo.jpg" alt="logo" width="100" height="100">
+    <h1>AgriAdvnz</h1>
+  </div>
+<div>
+  <ul class="nav nav-tabs justify-content-center my-4" id="agriTabs" role="tablist">
+
+ 
+    <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="seeding-tab" data-bs-toggle="tab" data-bs-target="#seeding" type="button" role="tab" aria-controls="seeding" aria-selected="true">
+      🌱 Seeding
+    </button>
+  </li>
+ 
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="watering-tab" data-bs-toggle="tab" data-bs-target="#watering" type="button" role="tab" aria-controls="watering" aria-selected="false">
+      💧 Watering
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="fertilizing-tab" data-bs-toggle="tab" data-bs-target="#fertilizing" type="button" role="tab" aria-controls="fertilizing" aria-selected="false">
+      🌾 Fertilizing
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="harvesting-tab" data-bs-toggle="tab" data-bs-target="#harvesting" type="button" role="tab" aria-controls="harvesting" aria-selected="false">
+      🚜 Harvesting
+    </button>
+  </li>
+  </ul>
+
+</div>
+
+  <div class="dropdown ms-auto mt-4" >
+  <button class="btn dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+    👤 Profile
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+    <li><button class="dropdown-item" id="logoutBtn">Logout</button></li>
+    <!-- <li><a class="dropdown-item" id="updatebtn" href="#update">Update</a></li> -->
+    <li><hr class="dropdown-divider"></li>
+    <li><button class="dropdown-item text-danger" id="deactivateBtn" href="#deactivate">Deactivate Account</button></li>
+  </ul>
+</div>
+
+ </div>
+
+  
+
+
+
+ <script>//logout
+document.getElementById("logoutBtn").addEventListener("click", async (e) => {
+    e.preventDefault(); // Prevent page refresh
+
+    try {
+        const response = await fetch("http://localhost:8000/logout", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert("Logged out successfully!");
+            localStorage.removeItem('token');
+            window.location.href = "/login";
+        } else {
+            alert(data.error || "Logout failed!");
+        }
+    } catch (err) {
+        alert("Server error. Try again later.");
+    }
+});
+</script>
+
+<script>//deactivate
+document.getElementById("deactivateBtn").addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    if (!confirm("Are you sure you want to deactivate your account?")) return;
+
+    try {
+        const response = await fetch("http://localhost:8000/deactivate", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert("Your account has been deactivated!");
+            localStorage.removeItem('token');
+            window.location.href = "/login";
+        } else {
+            alert(data.error || "Failed to deactivate account.");
+        }
+    } catch (err) {
+        alert("Server error. Try again later.");
+    }
+});
+</script>
+<div id="update" class="card p-3 mb-4" style="display: none;">
+  <h4>You can edit your info</h4>
+  <form id="editForm" class="mb-4">
+    <input type="hidden" id="farmerId">
+    <div class="mb-2"><input type="text" id="farmername" class="form-control" placeholder="Farmer Name" required></div>
+    <div class="mb-2"><input type="text" id="phonenumber" class="form-control" placeholder="Phone Number" required></div>
+    <div class="mb-2"><input type="password" id="password" class="form-control" placeholder="Password" required></div>
+    <div class="mb-2"><input type="number" id="land" class="form-control" placeholder="Land (acres)" required></div>
+    <div class="mb-2"><input type="number" id="income" class="form-control" placeholder="Income" required></div>
+    <div class="mb-2"><input type="number" id="investment" class="form-control" placeholder="Investment" required></div>
+    <button type="submit" class="btn btn-primary form-button">Save</button>
+    <button type="button" class="btn btn-secondary" onclick="hideUpdateCard()">Cancel</button>
+  </form>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const updateBtn = document.getElementById("updatebtn");
+    const updateCard = document.getElementById("update");
+
+    updateBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      if (updateCard.style.display === "block") {
+        hideUpdateCard();
+        return;
+      }
+
+      const farmerId = localStorage.getItem("farmerId"); // Use the logged-in farmer ID
+      if (!farmerId) {
+        alert("Farmer ID not found. Please log in again.");
+        return;
+      }
+
+      await loadFarmer(farmerId);
+      updateCard.style.display = "block";
+      updateCard.scrollIntoView({ behavior: "smooth" });
+    });
+  });
+
+  function hideUpdateCard() {
+    document.getElementById("update").style.display = "none";
+  }
+
+  async function loadFarmer(id) {
+    try {
+      const response = await fetch(`http://localhost:8000/api/farmers/${id}`);
+      const f = await response.json();
+
+      document.getElementById('farmerId').value = f.id;
+      document.getElementById('farmername').value = f.farmername;
+      document.getElementById('phonenumber').value = f.phonenumber;
+      document.getElementById('land').value = f.land;
+      document.getElementById('income').value = f.income;
+      document.getElementById('investment').value = f.investment;
+      document.getElementById('password').value = ""; // Leave blank for security
+    } catch (err) {
+      alert("Failed to load farmer data");
+      console.error(err);
+    }
+  }
+
+  document.getElementById('editForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('farmerId').value;
+    if (!id) {
+      alert("Farmer ID is missing.");
+      return;
+    }
+
+    const farmername = document.getElementById('farmername').value;
+    const phonenumber = document.getElementById('phonenumber').value;
+    const password = document.getElementById('password').value;
+    const land = document.getElementById('land').value;
+    const income = document.getElementById('income').value;
+    const investment = document.getElementById('investment').value;
+
+    try {
+      const response = await fetch(`http://localhost:8000/api/farmers/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ farmername, phonenumber, password, land, income, investment })
+      });
+
+      if (response.ok) {
+        alert("Record updated successfully!");
+        hideUpdateCard();
+      } else {
+        const data = await response.json();
+        alert(data.error || "Update failed");
+      }
+    } catch (err) {
+      alert("Server error while updating farmer");
+      console.error(err);
+    }
+  });
+</script>
+
+
+<div class="tab-content container" id="agriTabsContent">
+
+<div class="tab-pane fade show active" id="seeding" role="tabpanel" aria-labelledby="seeding-tab">
+  <h4> 🌱 Advanced Seeding Technologies</h4>
+  <p>
+    Precision seeding is an advanced agricultural technique that places seeds at accurate locations, depths, and spacing to maximize yield and minimize waste. It combines digital tools and machinery for efficient planting.
+  </p>
+
+  <h6>✅ Key Features of Precision Seeding:</h6>
+  <ol>
+    <li>Accurate Seed Placement
+      <ul>
+        <li>Uniform depth and spacing reduce overcrowding and gaps.</li>
+      </ul>
+    </li>
+    <li>Variable Rate Seeding
+      <ul>
+        <li>Adjusts seed rate based on field fertility, moisture, and topography.</li>
+      </ul>
+    </li>
+    <li>Reduced Seed Wastage
+      <ul>
+        <li>Minimizes over- or under-seeding, saving input costs and improving plant health.</li>
+      </ul>
+    </li>
+  </ol>
+
+  <div class="container-fluid">
+    <div class="row">
+      
+   
+      <nav class="col-md-3 sidebar">
+        <h4>Seeding Based on Method</h4>
+        <nav class="nav flex-column">
+          <a class="nav-link active" href="#DirectSeeding"> Direct Seeding</a>
+          <a class="nav-link" href="#LineSowing"> Line Sowing</a>
+        </nav>
+      </nav>
+
+   
+      <main class="col-md-9 px-4 py-5">
+        
+     
+        <section id="DirectSeeding" class="mb-5">
+          
+          <h5>🌱 Direct Seeding</h5>
+          <p>Seeds are scattered directly over the field, either manually or using machines, without transplanting.</p>
+          <p>🌾 Common crops using direct seeding:</p>
+          <ul>
+            <li>Rice</li>
+            <li>Wheat</li>
+            <li>Millets</li>
+          </ul>
+
+          <h6>🌟 Techniques Used:</h6>
+          <ol>
+            
+            <li><h5>Drum Seeding</h5>
+              <div class="list-itm-container">
+                <div class="lst-text">
+                  <h6>✅ What is Drum Seeding?</h6>
+                  <p>Drum seeding is a semi-mechanized method using pre-germinated rice seeds dropped in rows via a rolling drum seeder in a puddled field.</p>
+
+                  <h6>🔬 How It Works:</h6>
+                  <ul>
+                    <li>Fill pre-germinated seeds into the drum seeder.</li>
+                    <li>Pull it across the field to deposit seeds in rows.</li>
+                  </ul>
+
+                  <h6>✅ Advantages:</h6>
+                  <ul>
+                    <li>Reduces labor by 30–40% vs manual transplanting.</li>
+                    <li>Ensures even spacing for better crop management.</li>
+                    <li>Allows 1 person to sow 1 acre/day.</li>
+                  </ul>
+                </div>
+                <div class="list-image">
+                  <img src="/images/drumseed.jpg" alt="Drum Seeding" style="width: 400px; height: auto;">
+                </div>
+              </div>
+            </li>
+
+            <br>
+
+            
+            <li><h5>Rice Planting Machine</h5>
+              <div class="list-itm-container">
+                <div class="lst-text">
+                  <h6>✅ What is a Rice Transplanter?</h6>
+                  <p>This machine automates transplanting rice seedlings from a nursery into puddled fields, ensuring uniform row and depth placement.</p>
+
+                  <h6>🛠️ Types:</h6>
+                  <ul>
+                    <li>Walk-Behind (Manual or Power-assisted)</li>
+                    <li>Ride-On (Self-propelled)</li>
+                  </ul>
+
+                  <h6>✅ Advantages:</h6>
+                  <ul>
+                    <li>Saves 60–80% labor.</li>
+                    <li>Faster and more consistent than manual planting.</li>
+                    <li>Improves yield by reducing competition and weed growth.</li>
+                  </ul>
+                </div>
+                <div class="list-image">
+                  <img src="/images/maxresdefault.jpg" alt="Rice Planting Machine" style="width: 400px; height: auto;">
+                </div>
+              </div>
+            </li>
+          </ol>
+        </section>
+
+      
+        <section id="LineSowing" class="mb-5">
+          <h5>🚜 Line Sowing / Drill Seeding</h5>
+          <p>Seeds are placed in straight lines using a seed drill or marked manually. This ensures consistent spacing and depth for uniform crop growth.</p>
+
+          <div class="list-itm-container">
+            <div class="lst-text">
+              <h6>🌾 Common Crops:</h6>
+              <ul>
+                <li>Wheat</li>
+                <li>Maize</li>
+                <li>Soybean</li>
+                <li>Cotton</li>
+              </ul>
+
+              <h6>🛠️ Equipment Used:</h6>
+              <ol type="a">
+                <li><strong>Manual Line Marker</strong>
+                  <ul>
+                    <li>Marks straight rows for planting.</li>
+                  </ul>
+                </li>
+                <li><strong>Seed Drill (Manual or Animal-Drawn)</strong>
+                  <ul>
+                    <li>Dispenses seeds at uniform intervals through tubes.</li>
+                  </ul>
+                </li>
+                <li><strong>Tractor-Mounted Seed-cum-Fertilizer Drill</strong>
+                  <ul>
+                    <li>Sows seeds and applies fertilizer simultaneously.</li>
+                  </ul>
+                </li>
+              </ol>
+
+              <h6>✅ Advantages:</h6>
+              <ul>
+                <li>Faster and more efficient than broadcasting.</li>
+                <li>Supports machine weeding and harvesting.</li>
+                <li>Improves uniformity and crop yield.</li>
+              </ul>
+            </div>
+            <div class="list-image">
+              <img src="/images/maize.jpg" alt="Line Sowing" width="300px">
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</div>
+
+
+<div class="tab-pane fade" id="watering" role="tabpanel" aria-labelledby="watering-tab">
+
+  <h4>💧 Advanced Watering Technologies</h4>
+  <p>
+    In modern precision agriculture, watering is no longer a basic activity—it's a smart, data-driven process. These technologies optimize irrigation by measuring environmental conditions and adapting water delivery in real time. Below are key technologies used in smart irrigation systems under AgriAdvnz.
+  </p>
+
+  <div class="container-fluid">
+    <div class="row">
+
+    
+      <nav class="col-md-3 sidebar">
+        <h4>Smart Watering Menu</h4>
+        <nav class="nav flex-column">
+          <a class="nav-link active" href="#soil-moisture-sensors">Soil Moisture Sensors</a>
+          <a class="nav-link" href="#weather-irrigation">Weather-Based Irrigation</a>
+          <a class="nav-link" href="#ai-irrigation">AI-Powered Irrigation Systems</a>
+          <a class="nav-link" href="#drone-irrigation"> Drone-Assisted Irrigation</a>
+        </nav>
+      </nav>
+
+    
+      <main class="col-md-9 px-4 py-5">
+
+        <section id="soil-moisture-sensors" class="mb-5">
+          <div class="list-itm-container mb-5">
+            <div class="lst-text">
+              <h5>📡 Soil Moisture Sensors</h5>
+              <p>
+                Soil moisture sensors are buried in the root zone and measure the water content of the soil. These readings are sent to a central controller which decides whether watering is required. This prevents both overwatering and underwatering, helping maintain ideal moisture levels.
+              </p>
+              <h6> How It Works:</h6>
+              <ul>
+                <li>Sensors track real-time moisture %.</li>
+                <li>Thresholds are set (e.g., &lt; 30% = trigger watering).</li>
+                <li>Data is sent via IoT to cloud dashboards or automated systems.</li>
+              </ul>
+              <h6>✅ Benefits:</h6>
+              <ul>
+                <li>Saves 30–70% irrigation water.</li>
+                <li>Improves plant health and yield consistency.</li>
+                <li>Allows zone-based precision watering.</li>
+              </ul>
+            </div>
+            <div class="list-image">
+              <img src="/images/soil_sensor_agriculture_pumpkins.jpg" alt="Soil Moisture Sensor" style="width: 400px; height: auto;">
+            </div>
+          </div>
+        </section>
+
+        
+        <section id="weather-irrigation" class="mb-5">
+          <div class="list-itm-container mb-5">
+            <div class="lst-text">
+              <h5>🌤️ Weather-Based Smart Irrigation</h5>
+              <p>
+                These systems automatically adjust irrigation schedules using weather data such as temperature, humidity, wind, and rainfall forecasts. If it rains, the system cancels watering to avoid waste.
+              </p>
+              <h6>🛰️ How It Works:</h6>
+              <ul>
+                <li>Pulls real-time weather data from local or satellite APIs.</li>
+                <li>Calculates evapotranspiration rate (ET).</li>
+                <li>Adjusts irrigation based on actual crop need.</li>
+              </ul>
+              <h6>✅ Benefits:</h6>
+              <ul>
+                <li>Reduces water usage by avoiding unnecessary irrigation.</li>
+                <li>Minimizes runoff, erosion, and disease risk.</li>
+                <li>Helps plan irrigation windows during cloudy or dry periods.</li>
+              </ul>
+            </div>
+            <div class="list-image">
+              <img src="/images/OIP.jpg" alt="Weather Based Irrigation" style="width: 400px; height: auto;">
+            </div>
+          </div>
+        </section>
+
+        <section id="ai-irrigation" class="mb-5">
+          <div class="list-itm-container mb-5">
+            <div class="lst-text">
+              <h5>🤖 AI-Powered Irrigation Systems</h5>
+              <p>
+                AI-driven irrigation systems analyze historical and real-time farm data—like crop type, soil type, yield targets, and micro-climate—to determine optimal irrigation strategies. The AI learns and improves decisions every season.
+              </p>
+              <h6> Features:</h6>
+              <ul>
+                <li>Uses predictive analytics to schedule watering ahead of time.</li>
+                <li>Integrates with satellite maps and sensor feeds.</li>
+                <li>Detects irrigation anomalies and recommends corrections.</li>
+              </ul>
+              <h6>✅ Benefits:</h6>
+              <ul>
+                <li>Fully automated irrigation scheduling.</li>
+                <li>Prevents human error in critical growth stages.</li>
+                <li>Increases crop productivity with less water.</li>
+              </ul>
+            </div>
+            <div class="list-image">
+              <img src="/images/aiirrigation" alt="AI Smart Irrigation" style="width: 400px; height: auto;">
+            </div>
+          </div>
+        </section>
+
+        
+        <section id="drone-irrigation" class="mb-5">
+          <div class="list-itm-container mb-5">
+            <div class="lst-text">
+              <h5>🚁 Drone-Assisted Irrigation Mapping</h5>
+              <p>
+                Drones equipped with thermal and multispectral cameras scan the field and detect dry zones, overwatered patches, or water stress symptoms. This data helps farmers make targeted irrigation decisions or feed it to auto-irrigation systems.
+              </p>
+              <h6>Workflow:</h6>
+              <ul>
+                <li>Drone flies over field and captures heat/water signatures.</li>
+                <li>AI interprets data into actionable irrigation maps.</li>
+                <li>Precision irrigation systems act on the mapped data.</li>
+              </ul>
+              <h6>✅ Benefits:</h6>
+              <ul>
+                <li>Detects problems invisible to the naked eye.</li>
+                <li>Reduces overall water use through targeted application.</li>
+                <li>Improves water-use efficiency by up to 90% in problem zones.</li>
+              </ul>
+            </div>
+            <div class="list-image">
+              <img src="/images/droneiggrigation" alt="Drone Mapping for Irrigation" style="width: 400px; height: auto;">
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="tab-pane fade" id="fertilizing" role="tabpanel" aria-labelledby="fertilizing-tab">
+  <h4>🌾 Advanced Fertilizing Technologies</h4>
+  <p>
+    Fertilization in AgriAdvnz integrates smart systems like sensors, AI, and drone tech to deliver nutrients efficiently. These technologies support sustainable farming by applying the right amount of fertilizer based on real-time field data.
+  </p>
+
+  <div class="container-fluid">
+    <div class="row">
+   
+      <nav class="col-md-3 sidebar">
+        <h4>Fertilizing Methods</h4>
+        <nav class="nav flex-column">
+          <a class="nav-link active" href="#organic-fertilizing">🌱 Organic Fertilizing</a>
+          <a class="nav-link" href="#chemical-fertilizing">🧪 Chemical Fertilizing</a>
+          <a class="nav-link" href="#smart-fertilizing">📱 Smart Fertilizing</a>
+        </nav>
+      </nav>
+
+      <main class="col-md-9 px-4 py-5">
+
+        <section id="organic-fertilizing" class="mb-5">
+          <div class="list-itm-container">
+            <div class="lst-text">
+              <h5>🌱 Organic Fertilizing</h5>
+              <p>Organic fertilizers come from natural sources like compost, animal waste, and green manure. They improve long-term soil health, structure, and microbial biodiversity.</p>
+              <h6>🧾 Common Types:</h6>
+              <ul>
+                <li>Compost & Vermicompost</li>
+                <li>Farmyard manure (FYM)</li>
+                <li>Green manure</li>
+              </ul>
+              <h6>✅ Advantages:</h6>
+              <ul>
+                <li>Improves water retention in soil.</li>
+                <li>Safe for the environment.</li>
+                <li>Reduces dependency on chemicals.</li>
+              </ul>
+            </div>
+            <div class="list-image">
+              <img src="/images/organic.jpg" alt="Organic Fertilizer" style="width: 200px; height: 200px;">
+            </div>
+          </div>
+        </section>
+
+        <section id="chemical-fertilizing" class="mb-5">
+          <div class="list-itm-container">
+            <div class="lst-text">
+              <h5>🧪 Chemical Fertilizing</h5>
+              <p>Chemical fertilizers offer a fast-acting nutrient source but must be applied with precision to avoid damage to soil and water systems.</p>
+              <h6>📦 Types:</h6>
+              <ul>
+                <li>Urea (Nitrogen)</li>
+                <li>DAP (Phosphorus)</li>
+                <li>MOP (Potassium)</li>
+              </ul>
+              <h6>✅ Advantages:</h6>
+              <ul>
+                <li>Immediate boost to plant growth.</li>
+                <li>High nutrient concentration.</li>
+              </ul>
+              <h6>⚠️ Challenges:</h6>
+              <ul>
+                <li>Can cause nutrient leaching and pollution.</li>
+                <li>Overuse degrades soil over time.</li>
+              </ul>
+            </div>
+            <div class="list-image">
+              <img src="/images/chemical.jpg" alt="Chemical Fertilizer" style="width: 100%; height: 200px;">
+            </div>
+          </div>
+        </section>
+
+    
+        <section id="smart-fertilizing" class="mb-5">
+          <div class="list-itm-container">
+            <div class="lst-text">
+              <h5>📱 Smart Fertilizing</h5>
+              <p>Smart fertilization uses AI, satellite data, and soil sensors to deliver customized doses of nutrients based on crop and soil needs.
+                Advanced fertilizer techniques are crucial for modern agriculture, offering numerous benefits in terms of efficiency, sustainability, and productivity. By embracing these methods, 
+                farmers can ensure their crops receive optimal nutrition, promoting healthy growth and bountiful harvests.
+              </p>
+              <h6>🛠️ Key Technologies:</h6>
+              <ul>
+                <li>Variable Rate Application (VRA) using GPS</li>
+                <li>NPK soil sensors</li>
+                <li>Drones for aerial spraying</li>
+                <li>AI-based decision platforms</li>
+              </ul>
+              <h6>✅ Benefits:</h6>
+              <ul>
+                <li>Maximizes fertilizer use efficiency.</li>
+                <li>Minimizes runoff and reduces cost.</li>
+                <li>Improves crop quality and yield.</li>
+              </ul>
+            </div>
+            <div class="list-image">
+              <img src="/images/smart" alt="Smart Fertilizing" style="width: 100%; height: 200px;">
+            </div>
+          </div>
+
+          
+          <div class="mt-4">
+            <h6>📊 Traditional vs Smart Fertilizing</h6>
+            <table class="table table-bordered table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Feature</th>
+                  <th>Traditional</th>
+                  <th>Smart</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Application Method</td>
+                  <td>Broadcast or manual</td>
+                  <td>Sensor & GPS guided</td>
+                </tr>
+                <tr>
+                  <td>Efficiency</td>
+                  <td>40–60%</td>
+                  <td>80–95%</td>
+                </tr>
+                <tr>
+                  <td>Data Use</td>
+                  <td>None</td>
+                  <td>Sensor, Satellite, AI</td>
+                </tr>
+                <tr>
+                  <td>Environmental Impact</td>
+                  <td>High (leaching, runoff)</td>
+                  <td>Low and sustainable</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+         
+          <div class="card p-3 mt-5 shadow-sm">
+            <h6>🧮 Smart Fertilizer Suggestion Tool</h6>
+            <p>Enter your crop and soil type to see a smart NPK recommendation:</p>
+            <form id="fertilizerForm">
+              <label>Crop:
+                <input type="text" id="crop" class="form-control" placeholder="e.g., Rice, Wheat">
+              </label>
+              <label class="mt-2">Soil Type:
+                <select id="soil" class="form-control">
+                  <option value="clay">Clay</option>
+                  <option value="loam">Loam</option>
+                  <option value="sandy">Sandy</option>
+                </select>
+              </label>
+              <button type="button" onclick="suggestFertilizer()" class="btn btn-success mt-3">Get Suggestion</button>
+            </form>
+            <div id="fertilizerResult" class="mt-3 fw-bold text-primary"></div>
+          </div>
+
+          <script>
+            function suggestFertilizer() {
+              const crop = document.getElementById("crop").value.toLowerCase();
+              const soil = document.getElementById("soil").value;
+              let result = "Suggested NPK (kg/ha): ";
+
+              if (crop.includes("rice")) {
+                result += soil === "clay" ? "120:60:40" : "100:50:30";
+              } else if (crop.includes("wheat")) {
+                result += soil === "loam" ? "90:40:40" : "80:35:30";
+              } else if (crop.includes("maize")) {
+                result += "110:55:40";
+              } else {
+                result += "Refer to crop-specific agronomy data.";
+              }
+
+              document.getElementById("fertilizerResult").textContent = result;
+            }
+          </script>
+
+          
+        </section>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+<div class="tab-pane fade" id="harvesting" role="tabpanel" aria-labelledby="harvesting-tab">
+  <h4>🚜 Advanced Harvesting Technologies</h4>
+  <p>
+    Harvesting is the final and one of the most labor-intensive stages of agriculture. In AgriAdvnz, we adopt cutting-edge machines, robotics, and drone systems that make harvesting faster, smarter, and more sustainable. These technologies reduce labor dependency, crop loss, and enhance post-harvest value.
+  </p>
+
+  <div class="container-fluid">
+    <div class="row">
+
+      
+      <nav class="col-md-3 sidebar">
+        <h4>Harvesting Methods</h4>
+        <nav class="nav flex-column">
+          <a class="nav-link active" href="#mechanized-harvesting">🚜 Mechanized Harvesting</a>
+          <a class="nav-link" href="#ai-harvesting">🤖 AI & Robotic Harvesting</a>
+          <a class="nav-link" href="#drone-harvesting">🚁 Drone Crop Monitoring</a>
+        </nav>
+      </nav>
+
+      
+      <main class="col-md-9 px-4 py-5">
+
+        
+        <section id="mechanized-harvesting" class="mb-5">
+          <div class="list-itm-container">
+            <div class="lst-text">
+              <h5>🚜 Mechanized Harvesting</h5>
+              <p>
+                Mechanized harvesting involves using machines like combine harvesters and reapers that can cut, thresh, and clean crops in a single pass. These machines drastically reduce the time and labor required during harvesting, especially for cereal crops.
+              </p>
+
+              <h6>🛠️ Equipment Used:</h6>
+              <ul>
+                <li><strong>Combine Harvester:</strong> Cuts, threshes, and cleans grain in one operation.</li>
+                <li><strong>Mini Combine Harvester:</strong> Ideal for small plots and hilly areas.</li>
+                <li><strong>Self-propelled Reaper Binder:</strong> Harvests and ties crops into bundles automatically.</li>
+              </ul>
+
+              <h6>✅ Benefits:</h6>
+              <ul>
+                <li>Reduces harvesting time by up to 90%</li>
+                <li>Minimizes post-harvest losses and spillage</li>
+                <li>Improves grain quality due to gentler processing</li>
+                <li>Suitable for large-scale farming and contract harvesting</li>
+              </ul>
+
+              <h6>📍 Best Suited For:</h6>
+              <ul>
+                <li>Wheat, Paddy, Maize, Barley</li>
+                <li>Large flat farms and progressive farming zones</li>
+              </ul>
+            </div>
+            <div class="list-image">
+              <img src="/images/mechanized.jpg" alt="Combine Harvester" style="width: 300px; height: 250px;">
+            </div>
+          </div>
+        </section>
+
+      
+        <section id="ai-harvesting" class="mb-5">
+          <div class="list-itm-container">
+            <div class="lst-text">
+              <h5>🤖 AI & Robotic Harvesting</h5>
+              <p>
+                AI-powered robots are revolutionizing the way fruits and vegetables are harvested. Equipped with machine vision and deep learning models, these robots can detect fruit maturity, navigate rows autonomously, and pick produce gently using robotic arms or soft grippers.
+              </p>
+
+              <h6>🔍 Key Features:</h6>
+              <ul>
+                <li><strong>Computer Vision:</strong> Detects color, shape, and size to determine ripeness.</li>
+                <li><strong>Soft Robotic Arms:</strong> Harvests without bruising or damaging produce.</li>
+                <li><strong>Autonomous Navigation:</strong> Robots drive themselves between rows or greenhouses.</li>
+                <li><strong>Night Operation:</strong> Equipped with infrared and night vision to work 24/7.</li>
+              </ul>
+
+              <h6>✅ Benefits:</h6>
+              <ul>
+                <li>Selective harvesting based on maturity levels</li>
+                <li>Reduces labor dependency in peak seasons</li>
+                <li>Ideal for delicate crops like strawberries, tomatoes, bell peppers, apples</li>
+                <li>Integrates easily with warehouse grading systems</li>
+              </ul>
+
+              <h6>📍 Used In:</h6>
+              <ul>
+                <li>Horticulture farms and greenhouses</li>
+                <li>Smart fruit orchards and vegetable farms</li>
+              </ul>
+            </div>
+            <div class="list-image">
+              <img src="/images/ai.jpg" alt="AI Robot Harvesting Fruit" style="width: 300px; height: auto;">
+            </div>
+          </div>
+        </section>
+
+        
+        <section id="drone-harvesting" class="mb-5">
+          <div class="list-itm-container">
+            <div class="lst-text">
+              <h5>🚁 Drone-Based Crop Monitoring</h5>
+              <p>
+                Drones provide real-time aerial data before and during harvest to guide harvesting decisions. With thermal and multispectral cameras, they detect ripeness, estimate yield zones, and help plan harvesting routes efficiently.
+              </p>
+
+              <h6>📡 Technology Features:</h6>
+              <ul>
+                <li><strong>NDVI & RGB Imaging:</strong> Assesses plant health and maturity status</li>
+                <li><strong>Thermal Mapping:</strong> Detects crop stress or dryness</li>
+                <li><strong>Yield Forecasting:</strong> Helps calculate expected output per plot</li>
+              </ul>
+
+              <h6>✅ Benefits:</h6>
+              <ul>
+                <li>Reduces premature or delayed harvest errors</li>
+                <li>Improves harvester route efficiency</li>
+                <li>Works well in large fields and orchards</li>
+              </ul>
+
+              <h6>📍 Ideal For:</h6>
+              <ul>
+                <li>Grapes, sugarcane, cotton, and orchard crops</li>
+                <li>Smart farms with drone integration</li>
+              </ul>
+            </div>
+            <div class="list-image">
+              <img src="/images/drone.jpg" alt="Drone Monitoring Harvest" style="width: 100%; height: auto;">
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script> 
+</body>
+</html>
