@@ -21,12 +21,15 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host: 'yamabiko.proxy.rlwy.net',
   port: 26908,
   user: 'root',
   password: 'qEYFmhdmHxFYTKPjPGgefEqDtJSgFrTT',
-  database: 'railway'
+  database: 'railway',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
 db.getConnection((err, connection) => {
