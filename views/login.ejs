@@ -1,80 +1,88 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriAdvanZ</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
-    <link rel="stylesheet" href="/CSS/style.css">
-     <link rel="icon" href="/logo.ico" type="image/x-icon">
-    
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AgriAdvanZ</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous" />
+  <link rel="stylesheet" href="/CSS/style.css" />
+  <link rel="icon" href="/logo.ico" type="image/x-icon" />
+ 
 </head>
 
 <body>
-  
- <div id="container">
-     <h3 class="head"> Login Form</h3><br>
-     
-  <form id="loginForm">
-    <div class="mb-3">
-      <input type="tel" class="form-control" id="phonenumber"  placeholder="phonenumber">
+
+  <div class="container-fluid min-vh-100 d-flex align-items-center">
+    <div class="row w-100 justify-content-center">
+      <!-- Narrower card column -->
+      <div class="col-10 col-sm-8 col-md-4 col-lg-3">
+        <div class="card p-4 shadow-sm">
+          <h3 class="card-title mb-4 text-center">Login Form</h3>
+          <form id="loginForm" novalidate>
+            <div class="mb-3">
+              <input type="tel" class="form-control" id="phonenumber" placeholder="Phone number" required />
+            </div>
+            <div class="mb-3">
+              <input type="password" class="form-control" id="password" placeholder="Password" required />
+            </div>
+            <!-- Smaller button centered -->
+            <div class="d-flex justify-content-center">
+              <button type="submit">Login</button>
+            </div>
+          </form>
+          <div id="message" class="mt-3 text-center text-danger"></div>
+        </div>
+      </div>
+
+      <!-- Empty column to show background on right on desktop -->
+      <div class="d-none d-md-block col-md-8"></div>
     </div>
-    <div class="mb-3">
-      <input type="password" class="form-control" id="password" placeholder="password">
-    </div>
-    <button type="submit">Login</button>
-  </form>
-    
-   <div id="message" class="mt-3"></div>
- </div>
+  </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
-  
- 
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-<script>
-  document.getElementById("loginForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+      const phonenumber = document.getElementById("phonenumber").value.trim();
+      const password = document.getElementById("password").value.trim();
 
-    const phonenumber = document.getElementById("phonenumber").value;
-    const password = document.getElementById("password").value;
-
-    try {
-      const response = await fetch("http://localhost:8000/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phonenumber, password })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Save token and farmer ID in localStorage
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("farmerId", data.id);
-
-        alert("Login successful!");
-        window.location.href = "/main"; // Redirect to main page
+      if (!phonenumber || !password) {
+        document.getElementById("message").textContent = "Please fill in all fields.";
+        return;
       } else {
-        alert(data.error || "Login failed!");
+        document.getElementById("message").textContent = "";
       }
-    } catch (err) {
-      console.error("Login error:", err);
-      alert("Server error. Try again later.");
-    }
-  });
-</script>
 
-<footer>
+      try {
+        const response = await fetch("http://localhost:8000/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phonenumber, password }),
+        });
 
-</footer>
+        const data = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("farmerId", data.id);
+
+          alert("Login successful!");
+          window.location.href = "/main";
+        } else {
+          document.getElementById("message").textContent = data.error || "Login failed!";
+        }
+      } catch (err) {
+        console.error("Login error:", err);
+        document.getElementById("message").textContent = "Server error. Try again later.";
+      }
+    });
+  </script>
+
 </body>
 
 </html>
-
-
-

@@ -2,66 +2,46 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriAdvanZ</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
-    <link rel="stylesheet" href="/CSS/style.css">
-    <link rel="icon" href="/logo.ico" type="image/x-icon">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AgriAdvanZ Registration</title>
+   <link rel="stylesheet" href="/css/style.css" />
+  <style>
+   
+  </style>
 </head>
 
 <body>
-  
- <div id="container">
-     <h3 class="head"> Registration Form</h3><br>
-    
-      <form id="form" class="form" method="post">
-            <div class="feild">
-            <input type="text" id="farmername" name="farmername" class="inside" placeholder="Farmer Name"><br>
-             <p id="farmername_error" style="color: red;">Enter valid Name</p>
-            </div>
-            <div class="feild">
-              <input type="tel" id="phonenumber" name="phonenumber" class="inside"  placeholder="Phone Number"><br>
-              <p id="phonenumber_error" style="color: red;">Enter valid Phone Number</p>
-            </div>
-             <div class="feild">
-              <input type="password" id="password" name="password" class="inside"  placeholder="password"><br>
-              <p id="password_error" style="color: red;">Enter valid password</p>
-            </div>
-            <div class="feild">
-              <input type="number" id="land" name="land" class="inside" placeholder="Land(acres)"><br>
-               <p id="land_error" style="color: red;">Enter valid land in acres</p> 
-            </div>
-            <div class="feild">
-              <input type="number" id="income" name="income" class="inside" placeholder="Income"><br>
-              <p id="income_error"style="color: red;">Enter valid Income</p>
-            </div>
-            <div class="feild">
-            <input type="number" id="investment" name="investment" class="inside" placeholder="investment"><br>
-             <p id="investment_error"style="color: red;">Enter valid Investment</p>
-            </div>
-            
-            <div id="submit">
-              <button type="submit">Submit</button>
-            </div>
-        <div>
-        <a class="login" href="http://localhost:8000/login">Login</a>
 
+  <div class="card">
+    <h3 class="card-title">Registration Form</h3>
 
-        </div>
-      </form>
-   <div id="errormessage" style="color: red;"></div>
-  
- </div>
+    <form id="form" method="post" novalidate>
+      <input type="text" id="farmername" name="farmername" class="form-control" placeholder="Farmer Name" />
+      <p id="farmername_error" class="error-message">Enter valid Name</p>
 
+      <input type="tel" id="phonenumber" name="phonenumber" class="form-control" placeholder="Phone Number" />
+      <p id="phonenumber_error" class="error-message">Enter valid Phone Number</p>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
-<script src="/javascript/client.js"></script>
-<footer>
+      <input type="password" id="password" name="password" class="form-control" placeholder="Password" />
+      <p id="password_error" class="error-message">Enter valid password</p>
 
-</footer>
+      <input type="number" id="land" name="land" class="form-control" placeholder="Land (acres)" />
+      <p id="land_error" class="error-message">Enter valid land in acres</p>
+
+      <input type="number" id="income" name="income" class="form-control" placeholder="Income" />
+      <p id="income_error" class="error-message">Enter valid Income</p>
+
+      <input type="number" id="investment" name="investment" class="form-control" placeholder="Investment" />
+      <p id="investment_error" class="error-message">Enter valid Investment</p>
+
+      <button type="submit">Submit</button>
+    </form>
+
+    <button type="button" class="btn-login" onclick="window.location.href='/login'">Login</button>
+
+  </div>
+
 </body>
 
 </html>
-
